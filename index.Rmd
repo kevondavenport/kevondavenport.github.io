@@ -1,0 +1,156 @@
+---
+title: Is Jonathan Taylor a runner to watch?
+author: Kevon Davenport
+date: '2021-04-04'
+slug: is-jonathan-taylor-a-runner-to-watch
+categories:
+  - R
+tags:
+  - sports
+---
+Former Wisconsin Running Back Jonathan Taylor was a monster in college. Averaging over 2,000 yards a season, Taylor was a large contributor to Wisconsin's successful offense. The NFL was no different for Mr. Taylor. His Indianapolis Colt's had a promising 11-5 season that I'm sure Jonathan played a major roll in.
+
+Let's look at some statistics!
+```{r}
+library(tidyverse)
+library(gt)
+library(ggalt)
+library(scales)
+library(ggrepel)
+```
+
+```{r}
+players <-  read_csv("NFLRB.csv")
+```
+
+The data set I am working with is the NFL's leading rushers for the 2020/21 season excluding all Running Backs under 85 carries. A Running Back is considered "good" based on quite a few metrics. Most importantly is yards.
+
+In order to determine just how good Taylor is, we need to find out what our season average of all Running Back's is for yards and carries.
+
+```{r}
+players %>% 
+group_by(POS) %>% 
+summarise(AvgYds = mean(YDS), AvgATT = mean(ATT))
+```
+
+What I'm interested in looking at is where Jonathan Taylor is compared to the rest of the NFL, including a filter that highlights the best Running Back's.
+
+```{r}
+jt <- players %>% filter(`PLAYER NAME`== "Jonathan Taylor")
+good <- players %>% filter(YDS > 1500)
+```
+
+
+```{r}
+ggplot() + 
+  geom_point(data=players, aes(x=YDS, y= ATT), color="grey") + 
+  geom_point(data=good, aes(x=YDS, y= ATT), color="blue") + 
+  geom_text_repel(data=good, aes(x=YDS, y= ATT, label=`PLAYER NAME`)) +
+  geom_vline(xintercept = 700.6364) + 
+  geom_hline(yintercept = 156.9091) +
+  labs(
+       x="Total yards", 
+       y="Carries", 
+       title="Is Jonathan Taylor one to watch?", 
+       subtitle="After an impressive rookie season eyes are on Mr. Taylor.", 
+       caption="Source: ESPN | By Kevon Davenport"
+       ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+       ) +
+geom_point(data=jt, aes(x=YDS, y=ATT), color="#002C5F") + geom_text(data=jt, aes(x=YDS, y=ATT, label="Jonathan Taylor"))
+```
+Jonathan Taylor finished 3rd in rushing yards only behind Dalvin Cook and King He-... I mean Derrick Henry. It's already clear, that he's well above the average NFL Running Back.
+
+
+Now, this is where things get tough as a runner. The jig is up and your team has been scouted. How do you stop a prolific runner? By putting eight defenders "in the box" or near the line of scrimmage and forcing the offense to throw. 
+```{r}
+players %>% 
+filter(ATT > 200) %>% 
+select(`PLAYER NAME`,ATT, `8+D%`) %>%
+arrange(desc(`8+D%`)) %>%
+top_n(5) -> EightBox
+```
+
+Here's the top five running backs with the highest percentage of having eight defenders in the box during their rushing attempts.
+
+```{r}
+EightBox %>%
+  gt() %>%
+  tab_header(
+    title = "All those guys... for a ROOKIE?",
+    subtitle = "It makes sense though, the Colts didn't have a single receiver above 800 yards."
+  ) %>% tab_style(
+    style = cell_text(color = "black", weight = "bold", align = "left"),
+    locations = cells_title("title")
+  ) %>% tab_style(
+    style = cell_text(color = "black", align = "left"),
+    locations = cells_title("subtitle")
+  ) %>%
+  tab_source_note(
+    source_note = "By Kevon Davenport"
+  ) %>%
+  tab_source_note(
+    source_note = md("Source: [NFL](https://nextgenstats.nfl.com/stats/rushing#yards)")
+  ) %>% tab_style(
+    style = cell_text(color = "black", weight = "bold"),
+    locations = cells_body(
+      columns = vars(`PLAYER NAME`)
+    )
+  ) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#002C5F"),
+      cell_text(color = "white")
+      ),
+    locations = cells_body(
+      rows = `PLAYER NAME` == "Jonathan Taylor")
+  )
+```
+What does this mean? On average teams were willing to sacrifice their pass defense for run defense more often for Jonathan Taylor than Derrick Henry. The Colts' pass catching crew was subpar but make no mistake, opposing defenses KNEW that the only way to beat the Colt's was to limit Mr. Taylor's impact.
+
+
+You can only gain yards when you're given the ball, right? Let's look at the NFL's rushers who have been given the ball the most. Since we're talking about Jonathan Taylor, I'll use the number of times he got the ball as the minimum number of carries and filter out those behind him.
+
+```{r}
+players %>% 
+filter(ATT > 231) %>% 
+arrange(desc(ATT))%>% 
+select(`PLAYER NAME`, ATT) -> Carries
+```
+
+Using bar chart, shows where Jonathan Taylor ranks among the leagues most ran rushers.
+```{r}
+ggplot() + 
+geom_bar(data = Carries, aes(x=reorder(`PLAYER NAME`,`ATT`), weight=`ATT`)) + 
+geom_bar(data=jt, aes(x=reorder(`PLAYER NAME`,`ATT`), weight=`ATT`), fill="#002C5F") + 
+coord_flip() + 
+scale_y_continuous(labels = comma) + 
+labs(
+    title="This is what makes Jonathan Taylor so special.", 
+    x="", 
+    y="Carries", 
+    subtitle="Clearly, the Colt's should have given Taylor a few more carries\n just to see what he could've done with them.", caption="Source: ESPN | By Kevon Davenport"
+    ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+      )
+```
+He finished in eighth place. Jonathan Taylor ran for the 3rd most yards this past season, finishing ahead of 5 Running Backs who had more carries than he had, including THREE time Pro Bowler, Ezekiel Elliott. 
+
+This is NOT normal for a rookie Running Back. The only question remaining now is longevity. As a Big Ten Running Back, Taylor took a lot of snaps and a lot of hits in three years of college ball. Barring injuries, and the Colts' Wide Receiver situation interfering... Watch out for your crown Derrick Henry, Jonathan Taylor is coming.
+
+
+
+
+
+
+
