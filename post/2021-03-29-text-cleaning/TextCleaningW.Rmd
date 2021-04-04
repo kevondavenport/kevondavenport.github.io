@@ -1,0 +1,51 @@
+---
+title: Text Cleaning
+author: Kevon  Davenport
+date: '2021-03-29'
+slug: text-cleaning
+categories:
+  - R
+tags:
+  - homework
+---
+Loading the tidyverse and ggalt library into my notebook.
+```{r}
+library(tidyverse)
+library(ggalt)
+```
+Creating a data frame called "logs" which reads and holds my data.
+```{r}
+logs <- read.csv("badfootballlogs19.csv")
+```
+
+This block separates the initial "Result" column into 3 different columns: "Outcome", "TeamScore", and "OpponentScore". 
+```{r}
+newlogs <- logs %>% 
+  separate(Result, into=c("Outcome", "Score"), sep="\\(")  %>% mutate(Score=gsub("\\).*","",Score)) %>% separate(Score, into = c("TeamScore","OpponentScore"), sep = "-")
+```
+
+This block forces R to read out  Team and Opponent scores as numbers instead of text.
+```{r}
+newlogs %>% mutate(TeamScore = as.numeric(TeamScore), OpponentScore = as.numeric(OpponentScore)) %>% mutate(Differential = OpponentScore - TeamScore) -> Data
+```
+This block creates a new dataframe for games with a differential of greater than 65.
+```{r}
+worstgames <- Data %>% filter(Differential > 65)
+```
+This block graphs my Differential data & my worst games data and graphs it. It also encircles my worst games and highlights them red.
+```{r}
+ggplot() + 
+  geom_point(data=Data, aes(x=TeamScore, y=OpponentScore), color="grey") +
+geom_point(data=worstgames, aes(x=TeamScore, y=OpponentScore), color="red") +
+geom_encircle(data=worstgames, aes(x=TeamScore, y=OpponentScore), s_shape=.001, expand=0.01, colour="red") + geom_text(aes(x=40, y=85, label="Differential"))  + labs(title="Does Offense or Defense Win Games? ", subtitle="Here's the differential of game scores. ", x="Team Score", y="Opponent Score", caption = "Source: Matt Waite | By Kevon Davenport") +  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10), 
+    panel.grid.minor = element_blank()
+    )
+```
+
+
+
+

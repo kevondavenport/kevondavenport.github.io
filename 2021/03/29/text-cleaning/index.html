@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.81.0" />
+
+
+<title>Text Cleaning - Kevon Davenport&#39;s Github Site</title>
+<meta property="og:title" content="Text Cleaning - Kevon Davenport&#39;s Github Site">
+
+
+  <link href='http://kevondavenport.github.io/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://Instagram.com/KevonDavenport">Instagram</a></li>
+    
+    <li><a href="https://twitter.com/KevonDavenport">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">2 min read</span>
+    
+
+    <h1 class="article-title">Text Cleaning</h1>
+
+    
+    <span class="article-date">2021-03-29</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>Loading the tidyverse and ggalt library into my notebook.</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ──────────────────</code></pre>
+<pre><code>## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
+## ✓ tibble  3.0.3     ✓ dplyr   1.0.2
+## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
+<pre><code>## ── Conflicts ── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ggalt)</code></pre>
+<pre><code>## Registered S3 methods overwritten by &#39;ggalt&#39;:
+##   method                  from   
+##   grid.draw.absoluteGrob  ggplot2
+##   grobHeight.absoluteGrob ggplot2
+##   grobWidth.absoluteGrob  ggplot2
+##   grobX.absoluteGrob      ggplot2
+##   grobY.absoluteGrob      ggplot2</code></pre>
+<p>Creating a data frame called “logs” which reads and holds my data.</p>
+<pre class="r"><code>logs &lt;- read.csv(&quot;badfootballlogs19.csv&quot;)</code></pre>
+<p>This block separates the initial “Result” column into 3 different columns: “Outcome”, “TeamScore”, and “OpponentScore”.</p>
+<pre class="r"><code>newlogs &lt;- logs %&gt;% 
+  separate(Result, into=c(&quot;Outcome&quot;, &quot;Score&quot;), sep=&quot;\\(&quot;)  %&gt;% mutate(Score=gsub(&quot;\\).*&quot;,&quot;&quot;,Score)) %&gt;% separate(Score, into = c(&quot;TeamScore&quot;,&quot;OpponentScore&quot;), sep = &quot;-&quot;)</code></pre>
+<pre class="r"><code>newlogs %&gt;% mutate(TeamScore = as.numeric(TeamScore), OpponentScore = as.numeric(OpponentScore)) %&gt;% mutate(Differential = OpponentScore - TeamScore) -&gt; Data</code></pre>
+<pre class="r"><code>worstgames &lt;- Data %&gt;% filter(Differential &gt; 65)</code></pre>
+<pre class="r"><code>ggplot() + 
+  geom_point(data=Data, aes(x=TeamScore, y=OpponentScore), color=&quot;grey&quot;) +
+geom_point(data=worstgames, aes(x=TeamScore, y=OpponentScore), color=&quot;red&quot;) +
+geom_encircle(data=worstgames, aes(x=TeamScore, y=OpponentScore), s_shape=.001, expand=0.01, colour=&quot;red&quot;) + geom_text(aes(x=40, y=85, label=&quot;Differential&quot;))  + labs(title=&quot;Does Offense or Defense Win Games? &quot;, subtitle=&quot;Here&#39;s the differential of game scores. &quot;, x=&quot;Team Score&quot;, y=&quot;Opponent Score&quot;, caption = &quot;Source: Matt Waite | By Kevon Davenport&quot;) +  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10), 
+    panel.grid.minor = element_blank()
+    )</code></pre>
+<p><img src="http://kevondavenport.github.io/2021/03/29/text-cleaning/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

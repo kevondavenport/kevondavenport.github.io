@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.81.0" />
+
+
+<title>Is Jonathan Taylor the RB of the future? - Kevon Davenport&#39;s Github Site</title>
+<meta property="og:title" content="Is Jonathan Taylor the RB of the future? - Kevon Davenport&#39;s Github Site">
+
+
+  <link href='http://kevondavenport.github.io/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://Instagram.com/KevonDavenport">Instagram</a></li>
+    
+    <li><a href="https://twitter.com/KevonDavenport">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">8 min read</span>
+    
+
+    <h1 class="article-title">Is Jonathan Taylor the RB of the future?</h1>
+
+    
+    <span class="article-date">2021-04-04</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>Former Wisconsin Running Back Jonathan Taylor was a monster in college. Averaging over 2,000 yards a season, Taylor was a large contributor to Wisconsin’s successful offense. The NFL was no different for Mr. Taylor. His Indianapolis Colt’s had a promising 11-5 season that I’m sure Jonathan played a major roll in.</p>
+<p>Let’s look at some statistics!</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
+## ✓ tibble  3.0.3     ✓ dplyr   1.0.2
+## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(gt)
+library(ggalt)</code></pre>
+<pre><code>## Registered S3 methods overwritten by &#39;ggalt&#39;:
+##   method                  from   
+##   grid.draw.absoluteGrob  ggplot2
+##   grobHeight.absoluteGrob ggplot2
+##   grobWidth.absoluteGrob  ggplot2
+##   grobX.absoluteGrob      ggplot2
+##   grobY.absoluteGrob      ggplot2</code></pre>
+<pre class="r"><code>library(scales)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;scales&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     discard</code></pre>
+<pre><code>## The following object is masked from &#39;package:readr&#39;:
+## 
+##     col_factor</code></pre>
+<pre class="r"><code>library(ggrepel)</code></pre>
+<pre class="r"><code>players &lt;-  read_csv(&quot;NFLRB.csv&quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   `PLAYER NAME` = col_character(),
+##   TEAM = col_character(),
+##   EFF = col_double(),
+##   `8+D%` = col_double(),
+##   TLOS = col_double(),
+##   ATT = col_double(),
+##   YDS = col_double(),
+##   RYOE = col_double(),
+##   AVG = col_double(),
+##   `RYOE/ATT` = col_double(),
+##   `ROE%` = col_double(),
+##   TD = col_double(),
+##   POS = col_character()
+## )</code></pre>
+<p>The data set I am working with is the NFL’s leading rushers for the 2020/21 season excluding all Running Backs under 85 carries. A Running Back is considered “good” based on quite a few metrics. Most importantly is yards.</p>
+<p>In order to determine just how good Taylor is, we need to find out what our season average of all Running Back’s is for yards and carries.</p>
+<pre class="r"><code>players %&gt;% 
+group_by(POS) %&gt;% 
+summarise(AvgYds = mean(YDS), AvgATT = mean(ATT))</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   POS   AvgYds AvgATT
+##   &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+## 1 RB      701.   157.
+## 2 &lt;NA&gt;     NA     NA</code></pre>
+<p>What I’m interested in looking at is where Jonathan Taylor is compared to the rest of the NFL, including a filter that highlights the best Running Back’s.</p>
+<pre class="r"><code>jt &lt;- players %&gt;% filter(`PLAYER NAME`== &quot;Jonathan Taylor&quot;)
+good &lt;- players %&gt;% filter(YDS &gt; 1500)</code></pre>
+<pre class="r"><code>ggplot() + 
+  geom_point(data=players, aes(x=YDS, y= ATT), color=&quot;grey&quot;) + 
+  geom_point(data=good, aes(x=YDS, y= ATT), color=&quot;blue&quot;) + 
+  geom_text_repel(data=good, aes(x=YDS, y= ATT, label=`PLAYER NAME`)) +
+  geom_vline(xintercept = 700.6364) + 
+  geom_hline(yintercept = 156.9091) +
+  labs(
+       x=&quot;Total yards&quot;, 
+       y=&quot;Carries&quot;, 
+       title=&quot;Is Jonathan Taylor one to watch?&quot;, 
+       subtitle=&quot;After an impressive rookie season eyes are on Mr. Taylor.&quot;, 
+       caption=&quot;Source: ESPN | By Kevon Davenport&quot;
+       ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+       ) +
+geom_point(data=jt, aes(x=YDS, y=ATT), color=&quot;#002C5F&quot;) + geom_text(data=jt, aes(x=YDS, y=ATT, label=&quot;Jonathan Taylor&quot;))</code></pre>
+<pre><code>## Warning: Removed 61 rows containing missing values (geom_point).</code></pre>
+<p><img src="http://kevondavenport.github.io/2021/04/04/is-jonathan-taylor-the-rb-of-the-future/index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+Jonathan Taylor finished 3rd in rushing yards only behind Dalvin Cook and King He-… I mean Derrick Henry. It’s already clear, that he’s well above the average NFL Running Back.</p>
+<p>Now, this is where things get tough as a runner. The jig is up and your team has been scouted. How do you stop a prolific runner? By putting eight defenders “in the box” or near the line of scrimmage and forcing the offense to throw.</p>
+<pre class="r"><code>players %&gt;% 
+filter(ATT &gt; 200) %&gt;% 
+select(`PLAYER NAME`,ATT, `8+D%`) %&gt;%
+arrange(desc(`8+D%`)) %&gt;%
+top_n(5) -&gt; EightBox</code></pre>
+<pre><code>## Selecting by 8+D%</code></pre>
+<p>Here’s the top five running backs with the highest percentage of having eight defenders in the box during their rushing attempts.</p>
+<pre class="r"><code>EightBox %&gt;%
+  gt() %&gt;%
+  tab_header(
+    title = &quot;All those guys... for a ROOKIE?&quot;,
+    subtitle = &quot;It makes sense though, the Colts didn&#39;t have a single receiver above 800 yards.&quot;
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, weight = &quot;bold&quot;, align = &quot;left&quot;),
+    locations = cells_title(&quot;title&quot;)
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, align = &quot;left&quot;),
+    locations = cells_title(&quot;subtitle&quot;)
+  ) %&gt;%
+  tab_source_note(
+    source_note = &quot;By Kevon Davenport&quot;
+  ) %&gt;%
+  tab_source_note(
+    source_note = md(&quot;Source: [NFL](https://nextgenstats.nfl.com/stats/rushing#yards)&quot;)
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, weight = &quot;bold&quot;),
+    locations = cells_body(
+      columns = vars(`PLAYER NAME`)
+    )
+  ) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;#002C5F&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = `PLAYER NAME` == &quot;Jonathan Taylor&quot;)
+  )</code></pre>
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#cmndgwtumr .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#cmndgwtumr .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cmndgwtumr .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#cmndgwtumr .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#cmndgwtumr .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cmndgwtumr .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cmndgwtumr .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#cmndgwtumr .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#cmndgwtumr .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#cmndgwtumr .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#cmndgwtumr .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#cmndgwtumr .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#cmndgwtumr .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#cmndgwtumr .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#cmndgwtumr .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#cmndgwtumr .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#cmndgwtumr .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#cmndgwtumr .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cmndgwtumr .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#cmndgwtumr .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cmndgwtumr .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#cmndgwtumr .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#cmndgwtumr .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cmndgwtumr .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cmndgwtumr .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#cmndgwtumr .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cmndgwtumr .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#cmndgwtumr .gt_left {
+  text-align: left;
+}
+
+#cmndgwtumr .gt_center {
+  text-align: center;
+}
+
+#cmndgwtumr .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#cmndgwtumr .gt_font_normal {
+  font-weight: normal;
+}
+
+#cmndgwtumr .gt_font_bold {
+  font-weight: bold;
+}
+
+#cmndgwtumr .gt_font_italic {
+  font-style: italic;
+}
+
+#cmndgwtumr .gt_super {
+  font-size: 65%;
+}
+
+#cmndgwtumr .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="cmndgwtumr" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="3" class="gt_heading gt_title gt_font_normal" style="color: black; text-align: left; font-weight: bold;">All those guys... for a ROOKIE?</th>
+    </tr>
+    <tr>
+      <th colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: black; text-align: left;">It makes sense though, the Colts didn't have a single receiver above 800 yards.</th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">PLAYER NAME</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">ATT</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">8+D%</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Dalvin Cook</td>
+      <td class="gt_row gt_right">312</td>
+      <td class="gt_row gt_right">30.77</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: white; font-weight: bold; background-color: #002C5F;">Jonathan Taylor</td>
+      <td class="gt_row gt_right" style="background-color: #002C5F; color: white;">232</td>
+      <td class="gt_row gt_right" style="background-color: #002C5F; color: white;">29.74</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Derrick Henry</td>
+      <td class="gt_row gt_right">378</td>
+      <td class="gt_row gt_right">27.78</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Josh Jacobs</td>
+      <td class="gt_row gt_right">273</td>
+      <td class="gt_row gt_right">25.64</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Ezekiel Elliott</td>
+      <td class="gt_row gt_right">244</td>
+      <td class="gt_row gt_right">22.95</td>
+    </tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="3">By Kevon Davenport</td>
+    </tr>
+    <tr>
+      <td class="gt_sourcenote" colspan="3">Source: <a href="https://nextgenstats.nfl.com/stats/rushing#yards">NFL</a></td>
+    </tr>
+  </tfoot>
+  
+</table></div>
+<p>What does this mean? On average teams were willing to sacrifice their pass defense for run defense more often for Jonathan Taylor than Derrick Henry. The Colts’ pass catching crew was subpar but make no mistake, opposing defenses KNEW that the only way to beat the Colt’s was to limit Mr. Taylor’s impact.</p>
+<p>You can only gain yards when you’re given the ball, right? Let’s look at the NFL’s rushers who have been given the ball the most. Since we’re talking about Jonathan Taylor, I’ll use the number of times he got the ball as the minimum number of carries and filter out those behind him.</p>
+<pre class="r"><code>players %&gt;% 
+filter(ATT &gt; 231) %&gt;% 
+arrange(desc(ATT))%&gt;% 
+select(`PLAYER NAME`, ATT) -&gt; Carries</code></pre>
+<p>Using bar chart, shows where Jonathan Taylor ranks among the leagues most ran rushers.</p>
+<pre class="r"><code>ggplot() + 
+geom_bar(data = Carries, aes(x=reorder(`PLAYER NAME`,`ATT`), weight=`ATT`)) + 
+geom_bar(data=jt, aes(x=reorder(`PLAYER NAME`,`ATT`), weight=`ATT`), fill=&quot;#002C5F&quot;) + 
+coord_flip() + 
+scale_y_continuous(labels = comma) + 
+labs(
+    title=&quot;This is what makes Jonathan Taylor so special.&quot;, 
+    x=&quot;&quot;, 
+    y=&quot;Carries&quot;, 
+    subtitle=&quot;Clearly, the Colt&#39;s should have given Taylor a few more carries\n just to see what he could&#39;ve done with them.&quot;, caption=&quot;Source: ESPN | By Kevon Davenport&quot;
+    ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+      )</code></pre>
+<p><img src="http://kevondavenport.github.io/2021/04/04/is-jonathan-taylor-the-rb-of-the-future/index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+He finished in eighth place. Jonathan Taylor ran for the 3rd most yards this past season, finishing ahead of 5 Running Backs who had more carries than he had, including THREE time Pro Bowler, Ezekiel Elliott.</p>
+<p>This is NOT normal for a rookie Running Back. The only question remaining now is longevity. As a Big Ten Running Back, Taylor took a lot of snaps and a lot of hits in three years of college ball. Barring injuries, and the Colts’ Wide Receiver situation interfering… Watch out for your crown Derrick Henry, Jonathan Taylor is coming.</p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+
