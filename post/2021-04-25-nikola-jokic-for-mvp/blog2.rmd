@@ -1,0 +1,186 @@
+---
+title: Nikola Jokic For MVP
+author: R package build
+date: '2021-04-25'
+slug: nikola-jokic-for-mvp
+categories:
+  - R
+tags:
+  - sports
+---
+The NBA MVP race has been discussed a lot with the regular season being nearly complete. One man has stood far above others in my eyes, Mr. Nikola Jokic. Averaging about 26 points per game, he has his team sitting in fourth place in the Eastern Conference standings. 
+
+Let's take a look at the numbers!
+```{r}
+library(tidyverse)
+library(gt)
+library(ggalt)
+library(scales)
+library(ggrepel)
+```
+The data I am using includes the NBA's top 50 scorers and their season totals in every major statistical category. The  NBA MVP race is decided by more than just scoring so it was only right to include the remaining statistical categories as well.
+```{r}
+players <- read_csv("NBABest.csv")
+```
+
+```{r}
+players %>% mutate(ppg = PTS/GP) %>% filter(ppg > 1 )-> ppg
+```
+What I'm interested in looking at is how Nikola Jokic compares to the rest of these top scorers in other statistical categories.
+```{r}
+ppg %>% summarise(AvgPTS = mean(PTS), AvgPPG = mean(ppg), AvgW = mean(W), AvgREB = mean(REB), AVGAst = mean(AST))
+```
+ I've created filters for Nikola Jokic, Donovan Mitchell, and Devin Booker as these players score around the same amount and have played in 30 or more games their team has won.  
+```{r}
+ppg %>% filter(PLAYER == "Nikola Jokic") -> Joker
+ppg %>% filter(PLAYER == "Donovan Mitchell") -> DMitch
+ppg %>% filter(PLAYER == "Devin Booker")  -> Dbook
+```
+```{r}
+ggplot() + 
+geom_point(data=ppg, aes(x=`W`, y= ppg), color="grey") + 
+  geom_point(data= Joker, aes(x=`W`, y= ppg), color="red") + 
+  geom_text_repel(data= Joker, aes(x=`W`, y= ppg, label="NJ"))  + 
+  geom_point(data= DMitch, aes(x=`W`, y= ppg), color="Purple") +
+  geom_text_repel(data= DMitch, aes(x=`W`, y= ppg, label= "DM"))  +
+  geom_point(data= Dbook, aes(x=`W`, y= ppg), color="Orange") +
+  geom_text_repel(data= Dbook, aes(x=`W`, y= ppg, label= "DB"))  +
+  geom_vline(xintercept = 26.66	) + 
+  geom_hline(yintercept = 22.80961) +
+  labs(
+       x="Wins", 
+       y="Points Per Game", 
+       title="Is Nikola Jokic The NBA MVP?", 
+       subtitle="Only Donovan Mitchell has accounted for more wins and points per game.", 
+       caption="Source: NBA | By Kevon Davenport"
+       ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+       ) 
+```
+Nikola Jokic has the second highest points per game of players  who've  played in and won 35 games. Meaning that his efforts are worthwhile and what he does on the floor correlates with his team winning games. 
+
+Next, we'll look at players who score a lot and grab a lot of rebounds. 
+```{r}
+ggplot() + 
+  geom_point(
+    data=ppg, 
+    aes(x=PTS, y=REB, size=`W`),
+    alpha = .3) + 
+  scale_size(range = c(3, 8), name="Wins") + 
+  geom_point(
+    data=Joker, 
+    aes(x=PTS, y=REB, size=W), 
+    color="red") + 
+  geom_text_repel(data= Joker, aes(x=PTS , y= REB, label="NJ")) + 
+  geom_vline(xintercept = 1132.66		) + 
+  geom_hline(yintercept = 307.38	) +
+  labs(
+       x="Points", 
+       y="Rebounds", 
+       title="Is Nikola Jokic The Best Player In The NBA?", 
+       subtitle="No other player in his scoring category has as many rebounds.", 
+       caption="Source: NBA | By Kevon Davenport"
+       ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+       ) 
+```
+Nikola Jokic is in a league of his own. Players who score as many points as he does have over 150 less rebounds. 
+
+Now let's look at players who create scoring opportunities for others, the assist category. After looking through the numbers, I determined that anyone with more than 450 assists is an elite passer.
+```{r}
+ppg %>% filter(AST > 450) %>% select(RANK, PLAYER, AST) %>% arrange(desc(`AST`)) -> AST
+```
+```{r}
+ggplot() + 
+geom_bar(data = AST, aes(x=reorder(`PLAYER`,`AST`), weight=`AST`)) + 
+geom_bar(data=Joker, aes(x=reorder(`PLAYER`,`AST`), weight=`AST`), fill="#1D428A") + 
+coord_flip() + 
+scale_y_continuous(labels = comma) + 
+labs(
+    title="Nikola Jokic For MVP!", 
+    x="", 
+    y="Assists", 
+    subtitle="No other player with more than 450 assists is a top ten scorer.", caption="Source: NBA | By Kevon Davenport"
+    ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+      )
+```
+Next, we'll take a look at players who record 10 or more of two or three specific positive statistic (Points, Rebounds, Assists, etc.) along with their rank in points scored. These are called double-doubles and triple-doubles.
+```{r}
+ppg %>% filter(DD2 > 34) %>% select(RANK, PLAYER, DD2, TD3) %>% arrange(desc(`DD2`)) ->statstuffers
+```
+```{r}
+statstuffers  %>%
+  gt() %>%
+  tab_header(
+    title = "Nikola Jokic, a renaissance, do-it-all, man.",
+    subtitle = "The only top 5 scorer in this list is? Nikola Jokic."
+  ) %>% tab_style(
+    style = cell_text(color = "black", weight = "bold", align = "left"),
+    locations = cells_title("title")
+  ) %>% tab_style(
+    style = cell_text(color = "black", align = "left"),
+    locations = cells_title("subtitle")
+  ) %>%
+  tab_source_note(
+    source_note = "By Kevon Davenport"
+  ) %>%
+  tab_source_note(
+    source_note = md("Source: [NBA](https://www.nba.com/stats/)")
+  ) %>% tab_style(
+    style = cell_text(color = "black", weight = "bold"),
+    locations = cells_body(
+      columns = vars(`PLAYER`)
+    )
+  ) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#1D428A"),
+      cell_text(color = "white")
+      ),
+    locations = cells_body(
+      rows = `PLAYER` == "Nikola Jokic")
+  )
+```
+Once again, we see Nikola Jokic inserting his name into the conversationas he leads the NBA in double-doubles.
+
+This is where things get really conclusive to me: fantasy scoring. Fantasy scoring allocates points based on their overall performance in all major statistical categories including positive and negative actions.
+```{r}
+ppg %>% filter(FP > 2500) -> FP
+```
+```{r}
+ggplot() + 
+geom_bar(data = FP, aes(x=reorder(`PLAYER`,`FP`), weight=`FP`)) + 
+geom_bar(data=Joker, aes(x=reorder(`PLAYER`,`FP`), weight=`FP`), fill="#1D428A") + 
+coord_flip() + 
+scale_y_continuous(labels = comma) + 
+labs(
+    title="In the world of fantasy, Mr. Jokic wears the crown.", 
+    x="", 
+    y="Fantasy Points", 
+    subtitle="This season's fantasy scoring has been good \n to players named Nikola.", caption="Source: NBA | By Kevon Davenport"
+    ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+      )
+```
+Nikola Jokic stands TALL above the crowd as the only player who has registered 3000 fantasy points this season. For a guy who looks like he's out there playing in flip-flops this is incredible. If Nikola does not receive the NBA Most Valuable Player award, then we will know  that it is solely a popularity contest. 

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.81.0" />
+
+
+<title>Nikola Jokic For MVP - Kevon Davenport&#39;s Github Site</title>
+<meta property="og:title" content="Nikola Jokic For MVP - Kevon Davenport&#39;s Github Site">
+
+
+  <link href='http://kevondavenport.github.io/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://Instagram.com/KevonDavenport">Instagram</a></li>
+    
+    <li><a href="https://twitter.com/KevonDavenport">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">9 min read</span>
+    
+
+    <h1 class="article-title">Nikola Jokic For MVP</h1>
+
+    
+    <span class="article-date">2021-04-25</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>The NBA MVP race has been discussed a lot with the regular season being nearly complete. One man has stood far above others in my eyes, Mr. Nikola Jokic. Averaging about 26 points per game, he has his team sitting in fourth place in the Eastern Conference standings.</p>
+<p>Let’s take a look at the numbers!</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+## ✓ tibble  3.1.1     ✓ dplyr   1.0.5
+## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
+## ✓ readr   1.4.0     ✓ forcats 0.5.1</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(gt)
+library(ggalt)</code></pre>
+<pre><code>## Registered S3 methods overwritten by &#39;ggalt&#39;:
+##   method                  from   
+##   grid.draw.absoluteGrob  ggplot2
+##   grobHeight.absoluteGrob ggplot2
+##   grobWidth.absoluteGrob  ggplot2
+##   grobX.absoluteGrob      ggplot2
+##   grobY.absoluteGrob      ggplot2</code></pre>
+<pre class="r"><code>library(scales)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;scales&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     discard</code></pre>
+<pre><code>## The following object is masked from &#39;package:readr&#39;:
+## 
+##     col_factor</code></pre>
+<pre class="r"><code>library(ggrepel)</code></pre>
+<p>The data I am using includes the NBA’s top 50 scorers and their season totals in every major statistical category. The NBA MVP race is decided by more than just scoring so it was only right to include the remaining statistical categories as well.</p>
+<pre class="r"><code>players &lt;- read_csv(&quot;NBABest.csv&quot;)</code></pre>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   .default = col_double(),
+##   PLAYER = col_character(),
+##   TEAM = col_character()
+## )
+## ℹ Use `spec()` for the full column specifications.</code></pre>
+<pre class="r"><code>players %&gt;% mutate(ppg = PTS/GP) %&gt;% filter(ppg &gt; 1 )-&gt; ppg</code></pre>
+<p>What I’m interested in looking at is how Nikola Jokic compares to the rest of these top scorers in other statistical categories.</p>
+<pre class="r"><code>ppg %&gt;% summarise(AvgPTS = mean(PTS), AvgPPG = mean(ppg), AvgW = mean(W), AvgREB = mean(REB), AVGAst = mean(AST))</code></pre>
+<pre><code>## # A tibble: 1 x 5
+##   AvgPTS AvgPPG  AvgW AvgREB AVGAst
+##    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+## 1  1133.   22.8  26.7   307.   251.</code></pre>
+<p>I’ve created filters for Nikola Jokic, Donovan Mitchell, and Devin Booker as these players score around the same amount and have played in 30 or more games their team has won.</p>
+<pre class="r"><code>ppg %&gt;% filter(PLAYER == &quot;Nikola Jokic&quot;) -&gt; Joker
+ppg %&gt;% filter(PLAYER == &quot;Donovan Mitchell&quot;) -&gt; DMitch
+ppg %&gt;% filter(PLAYER == &quot;Devin Booker&quot;)  -&gt; Dbook</code></pre>
+<pre class="r"><code>ggplot() + 
+geom_point(data=ppg, aes(x=`W`, y= ppg), color=&quot;grey&quot;) + 
+  geom_point(data= Joker, aes(x=`W`, y= ppg), color=&quot;red&quot;) + 
+  geom_text_repel(data= Joker, aes(x=`W`, y= ppg, label=&quot;NJ&quot;))  + 
+  geom_point(data= DMitch, aes(x=`W`, y= ppg), color=&quot;Purple&quot;) +
+  geom_text_repel(data= DMitch, aes(x=`W`, y= ppg, label= &quot;DM&quot;))  +
+  geom_point(data= Dbook, aes(x=`W`, y= ppg), color=&quot;Orange&quot;) +
+  geom_text_repel(data= Dbook, aes(x=`W`, y= ppg, label= &quot;DB&quot;))  +
+  geom_vline(xintercept = 26.66 ) + 
+  geom_hline(yintercept = 22.80961) +
+  labs(
+       x=&quot;Wins&quot;, 
+       y=&quot;Points Per Game&quot;, 
+       title=&quot;Is Nikola Jokic The NBA MVP?&quot;, 
+       subtitle=&quot;Only Donovan Mitchell has accounted for more wins and points per game.&quot;, 
+       caption=&quot;Source: NBA | By Kevon Davenport&quot;
+       ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+       ) </code></pre>
+<p><img src="/post/2021-04-25-nikola-jokic-for-mvp/blog2_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+Nikola Jokic has the second highest points per game of players who’ve played in and won 35 games. Meaning that his efforts are worthwhile and what he does on the floor correlates with his team winning games.</p>
+<p>Next, we’ll look at players who score a lot and grab a lot of rebounds.</p>
+<pre class="r"><code>ggplot() + 
+  geom_point(
+    data=ppg, 
+    aes(x=PTS, y=REB, size=`W`),
+    alpha = .3) + 
+  scale_size(range = c(3, 8), name=&quot;Wins&quot;) + 
+  geom_point(
+    data=Joker, 
+    aes(x=PTS, y=REB, size=W), 
+    color=&quot;red&quot;) + 
+  geom_text_repel(data= Joker, aes(x=PTS , y= REB, label=&quot;NJ&quot;)) + 
+  geom_vline(xintercept = 1132.66       ) + 
+  geom_hline(yintercept = 307.38    ) +
+  labs(
+       x=&quot;Points&quot;, 
+       y=&quot;Rebounds&quot;, 
+       title=&quot;Is Nikola Jokic The Best Player In The NBA?&quot;, 
+       subtitle=&quot;No other player in his scoring category has as many rebounds.&quot;, 
+       caption=&quot;Source: NBA | By Kevon Davenport&quot;
+       ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+       ) </code></pre>
+<p><img src="/post/2021-04-25-nikola-jokic-for-mvp/blog2_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+Nikola Jokic is in a league of his own. Players who score as many points as he does have over 150 less rebounds.</p>
+<p>Now let’s look at players who create scoring opportunities for others, the assist category. After looking through the numbers, I determined that anyone with more than 450 assists is an elite passer.</p>
+<pre class="r"><code>ppg %&gt;% filter(AST &gt; 450) %&gt;% select(RANK, PLAYER, AST) %&gt;% arrange(desc(`AST`)) -&gt; AST</code></pre>
+<pre class="r"><code>ggplot() + 
+geom_bar(data = AST, aes(x=reorder(`PLAYER`,`AST`), weight=`AST`)) + 
+geom_bar(data=Joker, aes(x=reorder(`PLAYER`,`AST`), weight=`AST`), fill=&quot;#1D428A&quot;) + 
+coord_flip() + 
+scale_y_continuous(labels = comma) + 
+labs(
+    title=&quot;Nikola Jokic For MVP!&quot;, 
+    x=&quot;&quot;, 
+    y=&quot;Assists&quot;, 
+    subtitle=&quot;No other player with more than 450 assists is a top ten scorer.&quot;, caption=&quot;Source: NBA | By Kevon Davenport&quot;
+    ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+      )</code></pre>
+<p><img src="/post/2021-04-25-nikola-jokic-for-mvp/blog2_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+Next, we’ll take a look at players who record 10 or more of two or three specific positive statistic (Points, Rebounds, Assists, etc.) along with their rank in points scored. These are called double-doubles and triple-doubles.</p>
+<pre class="r"><code>ppg %&gt;% filter(DD2 &gt; 34) %&gt;% select(RANK, PLAYER, DD2, TD3) %&gt;% arrange(desc(`DD2`)) -&gt;statstuffers</code></pre>
+<pre class="r"><code>statstuffers  %&gt;%
+  gt() %&gt;%
+  tab_header(
+    title = &quot;Nikola Jokic, a renaissance, do-it-all, man.&quot;,
+    subtitle = &quot;The only top 5 scorer in this list is? Nikola Jokic.&quot;
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, weight = &quot;bold&quot;, align = &quot;left&quot;),
+    locations = cells_title(&quot;title&quot;)
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, align = &quot;left&quot;),
+    locations = cells_title(&quot;subtitle&quot;)
+  ) %&gt;%
+  tab_source_note(
+    source_note = &quot;By Kevon Davenport&quot;
+  ) %&gt;%
+  tab_source_note(
+    source_note = md(&quot;Source: [NBA](https://www.nba.com/stats/)&quot;)
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, weight = &quot;bold&quot;),
+    locations = cells_body(
+      columns = vars(`PLAYER`)
+    )
+  ) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;#1D428A&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = `PLAYER` == &quot;Nikola Jokic&quot;)
+  )</code></pre>
+<pre><code>## Warning: The `.dots` argument of `group_by()` is deprecated as of dplyr 1.0.0.</code></pre>
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#wqcbyjmlrf .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#wqcbyjmlrf .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#wqcbyjmlrf .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#wqcbyjmlrf .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#wqcbyjmlrf .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#wqcbyjmlrf .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#wqcbyjmlrf .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#wqcbyjmlrf .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#wqcbyjmlrf .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#wqcbyjmlrf .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#wqcbyjmlrf .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#wqcbyjmlrf .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#wqcbyjmlrf .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#wqcbyjmlrf .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#wqcbyjmlrf .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#wqcbyjmlrf .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#wqcbyjmlrf .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#wqcbyjmlrf .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#wqcbyjmlrf .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#wqcbyjmlrf .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#wqcbyjmlrf .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#wqcbyjmlrf .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#wqcbyjmlrf .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#wqcbyjmlrf .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#wqcbyjmlrf .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#wqcbyjmlrf .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#wqcbyjmlrf .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#wqcbyjmlrf .gt_left {
+  text-align: left;
+}
+
+#wqcbyjmlrf .gt_center {
+  text-align: center;
+}
+
+#wqcbyjmlrf .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#wqcbyjmlrf .gt_font_normal {
+  font-weight: normal;
+}
+
+#wqcbyjmlrf .gt_font_bold {
+  font-weight: bold;
+}
+
+#wqcbyjmlrf .gt_font_italic {
+  font-style: italic;
+}
+
+#wqcbyjmlrf .gt_super {
+  font-size: 65%;
+}
+
+#wqcbyjmlrf .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="wqcbyjmlrf" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="4" class="gt_heading gt_title gt_font_normal" style="color: black; text-align: left; font-weight: bold;">Nikola Jokic, a renaissance, do-it-all, man.</th>
+    </tr>
+    <tr>
+      <th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: black; text-align: left;">The only top 5 scorer in this list is? Nikola Jokic.</th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">RANK</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">PLAYER</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">DD2</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">TD3</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_right" style="background-color: #1D428A; color: white;">4</td>
+      <td class="gt_row gt_left" style="color: white; font-weight: bold; background-color: #1D428A;">Nikola Jokic</td>
+      <td class="gt_row gt_right" style="background-color: #1D428A; color: white;">50</td>
+      <td class="gt_row gt_right" style="background-color: #1D428A; color: white;">15</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">25</td>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Russell Westbrook</td>
+      <td class="gt_row gt_right">43</td>
+      <td class="gt_row gt_right">25</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">28</td>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Domantas Sabonis</td>
+      <td class="gt_row gt_right">40</td>
+      <td class="gt_row gt_right">6</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">10</td>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Nikola Vucevic</td>
+      <td class="gt_row gt_right">37</td>
+      <td class="gt_row gt_right">1</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">11</td>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Julius Randle</td>
+      <td class="gt_row gt_right">35</td>
+      <td class="gt_row gt_right">5</td>
+    </tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="4">By Kevon Davenport</td>
+    </tr>
+    <tr>
+      <td class="gt_sourcenote" colspan="4">Source: <a href="https://www.nba.com/stats/">NBA</a></td>
+    </tr>
+  </tfoot>
+  
+</table></div>
+<p>Once again, we see Nikola Jokic inserting his name into the conversationas he leads the NBA in double-doubles.</p>
+<p>This is where things get really conclusive to me: fantasy scoring. Fantasy scoring allocates points based on their overall performance in all major statistical categories including positive and negative actions.</p>
+<pre class="r"><code>ppg %&gt;% filter(FP &gt; 2500) -&gt; FP</code></pre>
+<pre class="r"><code>ggplot() + 
+geom_bar(data = FP, aes(x=reorder(`PLAYER`,`FP`), weight=`FP`)) + 
+geom_bar(data=Joker, aes(x=reorder(`PLAYER`,`FP`), weight=`FP`), fill=&quot;#1D428A&quot;) + 
+coord_flip() + 
+scale_y_continuous(labels = comma) + 
+labs(
+    title=&quot;In the world of fantasy, Mr. Jokic wears the crown.&quot;, 
+    x=&quot;&quot;, 
+    y=&quot;Fantasy Points&quot;, 
+    subtitle=&quot;This season&#39;s fantasy scoring has been good \n to players named Nikola.&quot;, caption=&quot;Source: NBA | By Kevon Davenport&quot;
+    ) + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 9), 
+    plot.subtitle = element_text(size=12), 
+    panel.grid.minor = element_blank()
+      )</code></pre>
+<p><img src="/post/2021-04-25-nikola-jokic-for-mvp/blog2_files/figure-html/unnamed-chunk-13-1.png" width="672" />
+Nikola Jokic stands TALL above the crowd as the only player who has registered 3000 fantasy points this season. For a guy who looks like he’s out there playing in flip-flops this is incredible. If Nikola does not receive the NBA Most Valuable Player award, then we will know that it is solely a popularity contest.</p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

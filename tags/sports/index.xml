@@ -6,7 +6,18 @@
     <description>Recent content in sports on Kevon Davenport&#39;s Github Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 04 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="http://kevondavenport.github.io/tags/sports/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 25 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="http://kevondavenport.github.io/tags/sports/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Nikola Jokic For MVP</title>
+      <link>http://kevondavenport.github.io/2021/04/25/nikola-jokic-for-mvp/</link>
+      <pubDate>Sun, 25 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>http://kevondavenport.github.io/2021/04/25/nikola-jokic-for-mvp/</guid>
+      <description>The NBA MVP race has been discussed a lot with the regular season being nearly complete. One man has stood far above others in my eyes, Mr. Nikola Jokic. Averaging about 26 points per game, he has his team sitting in fourth place in the Eastern Conference standings.
+Let’s take a look at the numbers!
+library(tidyverse) ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ── ## ✓ ggplot2 3.3.3 ✓ purrr 0.</description>
+    </item>
+    
     <item>
       <title>Is Jonathan Taylor the RB of the future?</title>
       <link>http://kevondavenport.github.io/2021/04/04/is-jonathan-taylor-the-rb-of-the-future/</link>
